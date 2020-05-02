@@ -7,7 +7,7 @@ import os
 # enable logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO)
+    level=logging.DEBUG)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -21,6 +21,11 @@ updater = Updater(TOKEN, use_context=True)
 
 dispatcher = updater.dispatcher
 
+def start(update, context):
+    update.effective_message.reply_text("Hello!")
+
+start_handler = CommandHandler('start', start)
+dispatcher.add_handler(start_handler)
 
 LOGGER.info("Starting WALLSBOT | Using webhook...")
 updater.start_webhook(listen="0.0.0.0",
@@ -29,12 +34,3 @@ updater.start_webhook(listen="0.0.0.0",
 
 updater.bot.set_webhook(url=URL + TOKEN)
 updater.idle()
-
-
-def start(update, context):
-    update.effective_message.reply_text("Hello!")
-    LOGGER.info("lmao")
-
-start_handler = CommandHandler('start', start)
-dispatcher.add_handler(start_handler)
-

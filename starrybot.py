@@ -1,3 +1,16 @@
+# Copyright (C) - 2020 Starry69 // @starryboi
+#
+# This file is part of WallsBot
+#
+# WallsBot is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# Licensed under GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+# Copyright (C) 2007 Free Software Foundation, Inc.
+# you may not use this file except in compliance with the License.
+
+
 from telegram.ext import Updater
 from telegram.ext import CommandHandler
 import logging
@@ -16,6 +29,7 @@ LOGGER = logging.getLogger(__name__)
 TOKEN = os.environ.get('TOKEN')
 URL = os.environ.get('URL')
 PORT = int(os.environ.get('PORT'))
+PIX_API = os.environ.get('PIX_API', None)
 
 updater = Updater(TOKEN, use_context=True)
 

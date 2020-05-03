@@ -112,7 +112,7 @@ def wall(update, context):
     query = query.replace(" ", "+")
     contents = requests.get(f"https://pixabay.com/api/?key={PIX_API}&q={query}").json()
     hits = contents.get('hits')
-    if not contents.get('hits'):
+    if not hits:
        msg.reply_text("Couldn't find any matching results for the query!")
        return
     else:

@@ -21,8 +21,8 @@ import requests
 import random
 
 from telegram import (
-     Message, Chat, Update,
-     Bot, User, ChatAction,
+     Chat, Update,
+     Bot, ChatAction,
      ParseMode, InlineKeyboardButton,
      InlineKeyboardMarkup)
 
@@ -80,7 +80,7 @@ Here are the list of available commands i can help you with.\n
 
 @run_async
 @send_action(ChatAction.TYPING)
-def help(update, context):
+def helper(update, context):
     update.effective_message.reply_text(HELP_MSG)
 
 @run_async
@@ -347,7 +347,7 @@ Contact him if you're having any trouble using me!
 
 ############### HANDLERS #################
 start_handler = CommandHandler('start', start)
-help_handler = CommandHandler('help', help)
+help_handler = CommandHandler('help', helper)
 wall_handler = CommandHandler(["wall", "wallpaper"], wall)
 wcolor_handler = CommandHandler('wcolor', wallcolor)
 random_handler = CommandHandler('random', randomwalls)

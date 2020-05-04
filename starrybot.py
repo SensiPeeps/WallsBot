@@ -146,7 +146,9 @@ def wall(update, context):
             reply_markup=InlineKeyboardMarkup(keyboard),
             parse_mode=ParseMode.MARKDOWN)
 
-       context.bot.send_document(chat.id, document=document)
+       context.bot.send_document(chat.id,
+               document=document,
+               timeout=100)
     except BadRequest as excp:
             msg.reply_text(f"Error! {excp.message}")
 
@@ -213,7 +215,9 @@ def wallcolor(update, context):
        reply_markup=InlineKeyboardMarkup(keyboard),
        parse_mode=ParseMode.MARKDOWN)
 
-       context.bot.send_document(chat.id, document=document)
+       context.bot.send_document(chat.id,
+                document=document,
+                timeout=100)
     except BadRequest as excp:
        msg.reply_text(f"Error! {excp.message}")
 
@@ -257,7 +261,9 @@ def editorschoice(update, context):
        reply_markup=InlineKeyboardMarkup(keyboard),
        parse_mode=ParseMode.MARKDOWN)
 
-       context.bot.send_document(chat.id, document=document)
+       context.bot.send_document(chat.id,
+               document=document,
+               timeout=100)
     except BadRequest as excp:
        msg.reply_text(f"Error! {excp.message}")
 
@@ -302,7 +308,9 @@ def randomwalls(update, context):
        reply_markup=InlineKeyboardMarkup(keyboard),
        parse_mode=ParseMode.MARKDOWN)
 
-       context.bot.send_document(chat.id, document=document)
+       context.bot.send_document(chat.id,
+               document=document,
+               timeout=100)
     except BadRequest as excp:
        msg.reply_text(f"Error! {excp.message}")
 

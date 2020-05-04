@@ -144,7 +144,8 @@ def wall(update, context):
        context.bot.send_photo(chat.id, photo=preview,
             caption=(WALL_STR),
             reply_markup=InlineKeyboardMarkup(keyboard),
-            parse_mode=ParseMode.MARKDOWN)
+            parse_mode=ParseMode.MARKDOWN,
+            timeout=60)
 
        context.bot.send_document(chat.id,
                document=document,
@@ -213,7 +214,8 @@ def wallcolor(update, context):
        context.bot.send_photo(chat.id, photo=preview,
        caption=(WCOLOR_STR),
        reply_markup=InlineKeyboardMarkup(keyboard),
-       parse_mode=ParseMode.MARKDOWN)
+       parse_mode=ParseMode.MARKDOWN,
+       timeout=60)
 
        context.bot.send_document(chat.id,
                 document=document,
@@ -259,7 +261,8 @@ def editorschoice(update, context):
        context.bot.send_photo(chat.id, photo=preview,
        caption=(EDITOR_STR),
        reply_markup=InlineKeyboardMarkup(keyboard),
-       parse_mode=ParseMode.MARKDOWN)
+       parse_mode=ParseMode.MARKDOWN,
+       timeout=60)
 
        context.bot.send_document(chat.id,
                document=document,
@@ -306,7 +309,8 @@ def randomwalls(update, context):
        context.bot.send_photo(chat.id, photo=preview,
        caption=(RANDOM_STR),
        reply_markup=InlineKeyboardMarkup(keyboard),
-       parse_mode=ParseMode.MARKDOWN)
+       parse_mode=ParseMode.MARKDOWN,
+       timeout=60)
 
        context.bot.send_document(chat.id,
                document=document,

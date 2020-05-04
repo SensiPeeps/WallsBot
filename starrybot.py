@@ -107,7 +107,7 @@ def wall(update, context):
        msg.reply_text("Please enter some keywords!")
        return
     query = query.replace(" ", "+")
-    contents = requests.get(f"https://pixabay.com/api/?key={PIX_API}&q={query}").json()
+    contents = requests.get(f"https://pixabay.com/api/?key={PIX_API}&q={query}&page=1&per_page=200").json()
     hits = contents.get('hits')
     if not hits:
        msg.reply_text("Couldn't find any matching results for the query!")
@@ -175,7 +175,7 @@ def wallcolor(update, context):
        msg.reply_text("This seems like invalid color filter, Click /colors to get list of valid colors!")
        return
 
-    contents = requests.get(f"https://pixabay.com/api/?key={PIX_API}&colors={color}").json()
+    contents = requests.get(f"https://pixabay.com/api/?key={PIX_API}&colors={color}&page=2&per_page=200").json()
     hits = contents.get('hits')
     if not hits: # should never happen since these colors are in supported list by API
        msg.reply_text("Couldn't find any matching results")
@@ -224,7 +224,7 @@ def editorschoice(update, context):
     msg = update.effective_message
     chat = update.effective_chat
 
-    contents = requests.get(f"https://pixabay.com/api/?key={PIX_API}&editors_choice").json()
+    contents = requests.get(f"https://pixabay.com/api/?key={PIX_API}&editors_choice&page=2&per_page=200").json()
     hits = contents.get('hits')
     pickrandom = random.choice(list(hits)) # Random hits
     hits = pickrandom
@@ -269,7 +269,7 @@ def randomwalls(update, context):
     msg = update.effective_message
     chat = update.effective_chat
 
-    contents = requests.get(f"https://pixabay.com/api/?key={PIX_API}").json()
+    contents = requests.get(f"https://pixabay.com/api/?key={PIX_API}&page=2&per_page=200").json()
     hits = contents.get('hits')
     pickrandom = random.choice(list(hits)) # Random hits
     hits = pickrandom

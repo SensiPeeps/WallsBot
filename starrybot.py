@@ -133,18 +133,18 @@ def wall(update, context):
 
 
        WALL_STR = f"""
-× *Likes*: {likes}
-× *Author*: {author}
-× *Views*: {views}
-× *Downloads*: {downloads}
-× *Tags*: {tags}
+× <b>Likes</b>: {likes}
+× <b>Author</b>: {author}
+× <b>Views</b>: {views}
+× <b>Downloads</b>: {downloads}
+× <b>Tags</b>: {tags}
 """
 
     try:
        context.bot.send_photo(chat.id, photo=preview,
             caption=(WALL_STR),
             reply_markup=InlineKeyboardMarkup(keyboard),
-            parse_mode=ParseMode.MARKDOWN,
+            parse_mode=ParseMode.HTML,
             timeout=60)
 
        context.bot.send_document(chat.id,
@@ -203,18 +203,18 @@ def wallcolor(update, context):
                   ]]
 
        WCOLOR_STR = f"""
-× *Likes*: {likes}
-× *Author*: {author}
-× *Views*: {views}
-× *Downloads*: {downloads}
-× *Tags*: {tags}
+× <b>Likes</b>: {likes}
+× <b>Author</b>: {author}
+× <b>Views</b>: {views}
+× <b>Downloads</b>: {downloads}
+× <b>Tags</b>: {tags}
 """
 
     try:
        context.bot.send_photo(chat.id, photo=preview,
        caption=(WCOLOR_STR),
        reply_markup=InlineKeyboardMarkup(keyboard),
-       parse_mode=ParseMode.MARKDOWN,
+       parse_mode=ParseMode.HTML,
        timeout=60)
 
        context.bot.send_document(chat.id,
@@ -251,17 +251,17 @@ def editorschoice(update, context):
                   ]]
 
     EDITOR_STR = f"""
-× *Likes*: {likes}
-× *Author*: {author}
-× *Views*: {views}
-× *Downloads*: {downloads}
-× *Tags*: {tags}
+× <b>Likes</b>: {likes}
+× <b>Author</b>: {author}
+× <b>Views</b>: {views}
+× <b>Downloads</b>: {downloads}
+× <b>Tags</b>: {tags}
 """
     try:
        context.bot.send_photo(chat.id, photo=preview,
        caption=(EDITOR_STR),
        reply_markup=InlineKeyboardMarkup(keyboard),
-       parse_mode=ParseMode.MARKDOWN,
+       parse_mode=ParseMode.HTML,
        timeout=60)
 
        context.bot.send_document(chat.id,
@@ -299,17 +299,17 @@ def randomwalls(update, context):
                   ]]
 
     RANDOM_STR = f"""
-× *Likes*: {likes}
-× *Author*: {author}
-× *Views*: {views}
-× *Downloads*: {downloads}
-× *Tags*: {tags}
+× <b>Likes</b>: {likes}
+× <b>Author</b>: {author}
+× <b>Views</b>: {views}
+× <b>Downloads</b>: {downloads}
+× <b>Tags</b>: {tags}
 """
     try:
        context.bot.send_photo(chat.id, photo=preview,
        caption=(RANDOM_STR),
        reply_markup=InlineKeyboardMarkup(keyboard),
-       parse_mode=ParseMode.MARKDOWN,
+       parse_mode=ParseMode.HTML,
        timeout=60)
 
        context.bot.send_document(chat.id,
@@ -322,22 +322,22 @@ def randomwalls(update, context):
 @run_async
 @send_action(ChatAction.TYPING)
 def colors(update, context):
-    chat = update.effective_chat
     user = update.effective_user
 
     COLOR_STR = f"""
 Hello {user.first_name}!
 here are the list of color filters you can use:
-× `grayscale`, `blue`.
-× `transparent`, `lilac`.
-× `red`, `pink`.
-× `orange`, `white`.
-× `yellow` , `grey`.
-× `green`, `black`.
-× `turquoise`, `brown`.
+× <code>grayscale</code>, <code>blue</code>.
+× <code>transparent</code>, <code>lilac</code>.
+× <code>red</code>, <code>pink</code>.
+× <code>orange</code>, <code>white</code>.
+× <code>yellow</code>, <code>grey</code>.
+× <code>green</code>, <code>black</code>.
+× <code>turquoise</code>, <code>brown</code>.
 """
-    context.bot.sendMessage(chat.id, COLOR_STR,
-                parse_mode=ParseMode.MARKDOWN)
+    update.effective_message.reply_text(
+           COLOR_STR,
+           parse_mode=ParseMode.HTML)
 
 
 @run_async
@@ -346,7 +346,7 @@ def about(update, context):
     user = update.effective_user
     chat = update.effective_chat
     ABOUT_STR = f"""
-Hello *{user.first_name}*!
+Hello <b>{user.first_name}</b>!
 I'm a simple wallpapers bot which
 gives you stunning free images & royalty free stock wallpapers from [pixabay](https://pixabay.com/).
 
@@ -354,7 +354,7 @@ I'm written on Python3 using PTB library by this [person](tg://user?id=894380120
 Contact him if you're having any trouble using me!
 """
     context.bot.sendMessage(chat.id, ABOUT_STR,
-                parse_mode=ParseMode.MARKDOWN)
+                parse_mode=ParseMode.HTML)
 
 
 ############### HANDLERS #################

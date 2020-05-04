@@ -10,21 +10,23 @@
 # Copyright (C) 2007 Free Software Foundation, Inc.
 # you may not use this file except in compliance with the License.
 
-
-from telegram.ext import Updater
-from telegram.ext import CommandHandler, run_async
 import logging
 import os
-from telegram.error import BadRequest
-from functools import wraps
 import requests
 import random
 
+from telegram.ext import (
+Updater, CommandHandler,
+run_async)
+
 from telegram import (
-     Chat, Update,
-     Bot, ChatAction,
-     ParseMode, InlineKeyboardButton,
-     InlineKeyboardMarkup)
+Chat, Update,
+Bot, ChatAction,
+ParseMode, InlineKeyboardButton,
+InlineKeyboardMarkup)
+
+from telegram.error import BadRequest
+from functools import wraps
 
 # enable logging
 logging.basicConfig(
@@ -107,7 +109,10 @@ def wall(update, context):
        msg.reply_text("Please enter some keywords!")
        return
     query = query.replace(" ", "+")
-    contents = requests.get(f"https://pixabay.com/api/?key={PIX_API}&q={query}&page=1&per_page=200").json()
+    contents = requests.get(
+               f"https://pixabay.com/api/?key={PIX_API}&q={query}&page=1&per_page=200"
+               ).json()
+
     hits = contents.get('hits')
     if not hits:
        msg.reply_text("Couldn't find any matching results for the query!")
@@ -175,10 +180,15 @@ def wallcolor(update, context):
        msg.reply_text("Please enter some keywords to get walls based on color properties.")
        return
     if color not in VALID_COLORS:
-       msg.reply_text("This seems like invalid color filter, Click /colors to get list of valid colors!")
+       msg.reply_text(
+           "This seems like invalid color filter, Click /colors to get list of valid colors!"
+               )
        return
 
-    contents = requests.get(f"https://pixabay.com/api/?key={PIX_API}&colors={color}&page=2&per_page=200").json()
+    contents = requests.get(
+               f"https://pixabay.com/api/?key={PIX_API}&colors={color}&page=2&per_page=200"
+               ).json()
+
     hits = contents.get('hits')
     if not hits: # should never happen since these colors are in supported list by API
        msg.reply_text("Couldn't find any matching results")
@@ -230,7 +240,10 @@ def editorschoice(update, context):
     msg = update.effective_message
     chat = update.effective_chat
 
-    contents = requests.get(f"https://pixabay.com/api/?key={PIX_API}&editors_choice=true&page=2&per_page=200").json()
+    contents = requests.get(
+               f"https://pixabay.com/api/?key={PIX_API}&editors_choice=true&page=2&per_page=200"
+               ).json()
+
     hits = contents.get('hits')
     pickrandom = random.choice(list(hits)) # Random hits
     hits = pickrandom
@@ -278,7 +291,10 @@ def randomwalls(update, context):
     msg = update.effective_message
     chat = update.effective_chat
 
-    contents = requests.get(f"https://pixabay.com/api/?key={PIX_API}&page=2&per_page=200").json()
+    contents = requests.get(
+               f"https://pixabay.com/api/?key={PIX_API}&page=2&per_page=200"
+               ).json()
+
     hits = contents.get('hits')
     pickrandom = random.choice(list(hits)) # Random hits
     hits = pickrandom

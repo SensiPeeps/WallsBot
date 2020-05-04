@@ -348,9 +348,9 @@ def about(update, context):
     ABOUT_STR = f"""
 Hello <b>{user.first_name}</b>!
 I'm a simple wallpapers bot which
-gives you stunning free images & royalty free stock wallpapers from [pixabay](https://pixabay.com/).
+gives you stunning free images & royalty free stock wallpapers from <a href="https://pixabay.com/">pixabay</a>.
 
-I'm written on Python3 using PTB library by this [person](tg://user?id=894380120).
+I'm written on Python3 using PTB library by this <a href="tg://user?id=894380120">person</a>.
 Contact him if you're having any trouble using me!
 """
     context.bot.sendMessage(chat.id, ABOUT_STR,

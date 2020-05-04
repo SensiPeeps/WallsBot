@@ -230,7 +230,7 @@ def editorschoice(update, context):
     msg = update.effective_message
     chat = update.effective_chat
 
-    contents = requests.get(f"https://pixabay.com/api/?key={PIX_API}&editors_choice&page=2&per_page=200").json()
+    contents = requests.get(f"https://pixabay.com/api/?key={PIX_API}&editors_choice=true&page=2&per_page=200").json()
     hits = contents.get('hits')
     pickrandom = random.choice(list(hits)) # Random hits
     hits = pickrandom

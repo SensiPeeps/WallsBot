@@ -396,7 +396,7 @@ def api_status(update, context):
        msg.reply_text(text,
               parse_mode=ParseMode.HTML)
 
-    except:
+    except Exception:
          msg.reply_text(f"API status: {status}")
 
 

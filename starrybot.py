@@ -15,11 +15,11 @@ import os
 import requests
 import random
 
-from telegram.ext import (
+from telegram.ext import(
 Updater, CommandHandler,
 run_async, Filters)
 
-from telegram import (
+from telegram import(
 Chat, Update,
 Bot, ChatAction,
 ParseMode, InlineKeyboardButton,

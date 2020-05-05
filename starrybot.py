@@ -385,15 +385,21 @@ def api_status(update, context):
     else:
        status = f'Error! {r.status_code}'
 
-    ratelimit = r.headers['X-RateLimit-Limit']
-    remaining = r.headers['X-RateLimit-Remaining']
+    try:
+       ratelimit = r.headers['X-RateLimit-Limit']
+       remaining = r.headers['X-RateLimit-Remaining']
 
-    text = f"API status: <code>{status}</code>\n"
-    text += f"Requests limit: <code>{ratelimit}</code>\n"
-    text += f"Requests remaining: <code>{remaining}</code>"
+       text = f"API status: <code>{status}</code>\n"
+       text += f"Requests limit: <code>{ratelimit}</code>\n"
+       text += f"Requests remaining: <code>{remaining}</code>"
 
-    msg.reply_text(text,
+       msg.reply_text(text,
               parse_mode=ParseMode.HTML)
+
+    except:
+         msg.reply_text(f"API status: {status}")
+
+
 
 # HANDLERS
 start_handler = CommandHandler('start', start)

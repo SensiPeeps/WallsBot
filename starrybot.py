@@ -103,7 +103,7 @@ def wall(update, context):
     msg = update.effective_message
     chat = update.effective_chat
     args = context.args
-    query = " ".join(args)
+    query = " ".join(args).lower()
 
     if not query:
        msg.reply_text("Please enter some keywords!")
@@ -174,7 +174,7 @@ def wallcolor(update, context):
     msg = update.effective_message
     chat = update.effective_chat
     args = context.args
-    color = " ".join(args)
+    color = " ".join(args).lower()
 
     if not color:
        msg.reply_text("Please enter some keywords to get walls based on color properties.")

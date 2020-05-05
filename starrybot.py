@@ -17,7 +17,7 @@ import random
 
 from telegram.ext import (
 Updater, CommandHandler,
-run_async)
+run_async, Filters)
 
 from telegram import (
 Chat, Update,
@@ -50,8 +50,6 @@ else:
 updater = Updater(TOKEN, use_context=True)
 
 dispatcher = updater.dispatcher
-
-################ START & HELPER FUCS ##############
 
 # Good bots should send actions.
 def send_action(action):
@@ -95,7 +93,9 @@ def start(update, context):
 def error(update, context):
     LOGGER.warning('Update "%s" caused error "%s"', update, context.error)
 
-############ WALL FUNCTIONS #############
+# WALL FUNCTIONS
+
+BASE_URL = 'https://pixabay.com/api/'
 
 @run_async
 @send_action(ChatAction.UPLOAD_PHOTO)
@@ -110,7 +110,7 @@ def wall(update, context):
        return
     query = query.replace(" ", "+")
     contents = requests.get(
-               f"https://pixabay.com/api/?key={PIX_API}&q={query}&page=1&per_page=200"
+               f"{BASE_URL}?key={PIX_API}&q={query}&page=1&per_page=200"
                ).json()
 
     hits = contents.get('hits')
@@ -186,7 +186,7 @@ def wallcolor(update, context):
        return
 
     contents = requests.get(
-               f"https://pixabay.com/api/?key={PIX_API}&colors={color}&page=2&per_page=200"
+               f"{BASE_URL}?key={PIX_API}&colors={color}&page=2&per_page=200"
                ).json()
 
     hits = contents.get('hits')
@@ -241,7 +241,7 @@ def editorschoice(update, context):
     chat = update.effective_chat
 
     contents = requests.get(
-               f"https://pixabay.com/api/?key={PIX_API}&editors_choice=true&page=2&per_page=200"
+               f"{BASE_URL}?key={PIX_API}&editors_choice=true&page=2&per_page=200"
                ).json()
 
     hits = contents.get('hits')
@@ -292,7 +292,7 @@ def randomwalls(update, context):
     chat = update.effective_chat
 
     contents = requests.get(
-               f"https://pixabay.com/api/?key={PIX_API}&page=2&per_page=200"
+               f"{BASE_URL}?key={PIX_API}&page=2&per_page=200"
                ).json()
 
     hits = contents.get('hits')
@@ -372,8 +372,30 @@ Contact him if you're having any trouble using me!
     context.bot.sendMessage(chat.id, ABOUT_STR,
                 parse_mode=ParseMode.HTML)
 
+@run_async
+@send_action(ChatAction.TYPING)
+def api_status(update, context):
+    msg = update.effective_message
+    r = requests.get(
+        f"{BASE_URL}?key={PIX_API}")
+    if r.status_code == 200:
+       status = 'functional'
+    elif r.status_code == 429:
+       status = 'limit exceeded!'
+    else:
+       status = f'Error! {r.status_code}'
 
-############### HANDLERS #################
+    ratelimit = r.headers['X-RateLimit-Limit']
+    remaining = r.headers['X-RateLimit-Remaining']
+
+    text = f"API status: <code>{status}</code>\n"
+    text += f"Requests limit: <code>{ratelimit}</code>\n"
+    text += f"Requests remaining: <code>{remaining}</code>"
+
+    msg.reply_text(text,
+              parse_mode=ParseMode.HTML)
+
+# HANDLERS
 start_handler = CommandHandler('start', start)
 help_handler = CommandHandler('help', helper)
 wall_handler = CommandHandler(["wall", "wallpaper"], wall)
@@ -382,6 +404,8 @@ random_handler = CommandHandler('random', randomwalls)
 editors_handler = CommandHandler('editors', editorschoice)
 colors_handler = CommandHandler('colors', colors)
 about_handler = CommandHandler('about', about)
+apistatus_handler = CommandHandler('status', api_status, filters=Filters.user(894380120))
+
 # Register handlers to dispatcher
 dispatcher.add_handler(start_handler)
 dispatcher.add_handler(help_handler)
@@ -391,8 +415,10 @@ dispatcher.add_handler(editors_handler)
 dispatcher.add_handler(random_handler)
 dispatcher.add_handler(colors_handler)
 dispatcher.add_handler(about_handler)
+dispatcher.add_handler(apistatus_handler)
 dispatcher.add_error_handler(error)
-############### BOT ENGINE ################
+
+# BOT ENGINE
 if WEBHOOK:
           LOGGER.info("Starting WallpaperRobot | Using webhook...")
           updater.start_webhook(listen="0.0.0.0",

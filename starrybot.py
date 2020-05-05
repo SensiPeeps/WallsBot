@@ -402,39 +402,43 @@ def api_status(update, context):
 
 
 # HANDLERS
-start_handler = CommandHandler('start', start)
-help_handler = CommandHandler('help', helper)
-wall_handler = CommandHandler(["wall", "wallpaper"], wall)
-wcolor_handler = CommandHandler('wcolor', wallcolor)
-random_handler = CommandHandler('random', randomwalls)
-editors_handler = CommandHandler('editors', editorschoice)
-colors_handler = CommandHandler('colors', colors)
-about_handler = CommandHandler('about', about)
-apistatus_handler = CommandHandler('status', api_status, filters=Filters.user(894380120))
+def main():
+    start_handler = CommandHandler('start', start)
+    help_handler = CommandHandler('help', helper)
+    wall_handler = CommandHandler(["wall", "wallpaper"], wall)
+    wcolor_handler = CommandHandler('wcolor', wallcolor)
+    random_handler = CommandHandler('random', randomwalls)
+    editors_handler = CommandHandler('editors', editorschoice)
+    colors_handler = CommandHandler('colors', colors)
+    about_handler = CommandHandler('about', about)
+    apistatus_handler = CommandHandler('status', api_status, filters=Filters.user(894380120))
 
 # Register handlers to dispatcher
-dispatcher.add_handler(start_handler)
-dispatcher.add_handler(help_handler)
-dispatcher.add_handler(wall_handler)
-dispatcher.add_handler(wcolor_handler)
-dispatcher.add_handler(editors_handler)
-dispatcher.add_handler(random_handler)
-dispatcher.add_handler(colors_handler)
-dispatcher.add_handler(about_handler)
-dispatcher.add_handler(apistatus_handler)
-dispatcher.add_error_handler(error)
+    dispatcher.add_handler(start_handler)
+    dispatcher.add_handler(help_handler)
+    dispatcher.add_handler(wall_handler)
+    dispatcher.add_handler(wcolor_handler)
+    dispatcher.add_handler(editors_handler)
+    dispatcher.add_handler(random_handler)
+    dispatcher.add_handler(colors_handler)
+    dispatcher.add_handler(about_handler)
+    dispatcher.add_handler(apistatus_handler)
+    dispatcher.add_error_handler(error)
 
 # BOT ENGINE
-if WEBHOOK:
-          LOGGER.info("Starting WallpaperRobot | Using webhook...")
+    if WEBHOOK:
+          LOGGER.info("Starting WallsBot // Using webhooks...")
           updater.start_webhook(listen="0.0.0.0",
                       port=PORT,
                       url_path=TOKEN)
 
           updater.bot.set_webhook(url=URL + TOKEN)
 
-else:
-     LOGGER.info("Starting WAallpaperRobot | Using long polling...")
-     updater.start_polling(timeout=15, read_latency=4)
+    else:
+        LOGGER.info("Starting WallsBot // Using long polling...")
+        updater.start_polling(timeout=15, read_latency=4)
 
-updater.idle()
+    updater.idle()
+
+if __name__ == '__main__':
+   main()

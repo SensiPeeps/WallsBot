@@ -20,12 +20,13 @@ Updater, CommandHandler,
 run_async, Filters)
 
 from telegram import(
-Chat, Update,
-Bot, ChatAction,
-ParseMode, InlineKeyboardButton,
+ChatAction, ParseMode,
+InlineKeyboardButton,
 InlineKeyboardMarkup)
 
 from telegram.error import BadRequest
+from telegram.utils.helpers import mention_html
+
 from functools import wraps
 
 # enable logging
@@ -338,10 +339,13 @@ def randomwalls(update, context):
 @run_async
 @send_action(ChatAction.TYPING)
 def colors(update, context):
-    user = update.effective_user
 
     COLOR_STR = f"""
-Hello {user.first_name}!
+Hello {mention_html(
+   update.effective_user.id,
+        update.effective_user.full_name
+      )
+}
 here are the list of color filters you can use:
 × <code>grayscale</code>, <code>blue</code>.
 × <code>transparent</code>, <code>lilac</code>.
@@ -362,7 +366,11 @@ def about(update, context):
     user = update.effective_user
     chat = update.effective_chat
     ABOUT_STR = f"""
-Hello <b>{user.first_name}</b>!
+Hello {mention_html(
+   update.effective_user.id,
+        update.effective_user.full_name
+       )
+}
 I'm a simple wallpapers bot which
 gives you stunning free images & royalty free stock wallpapers from <a href="https://pixabay.com/">pixabay</a>.
 
@@ -412,7 +420,6 @@ def main():
     colors_handler = CommandHandler('colors', colors)
     about_handler = CommandHandler('about', about)
     apistatus_handler = CommandHandler('status', api_status, filters=Filters.user(894380120))
-
 # Register handlers to dispatcher
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(help_handler)

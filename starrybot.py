@@ -17,7 +17,8 @@ import random
 
 from telegram.ext import(
 Updater, CommandHandler,
-run_async, Filters)
+run_async, Filters, Defaults
+)
 
 from telegram import(
 ChatAction, ParseMode,
@@ -47,11 +48,6 @@ if ENV:
 else:
       from config import TOKEN, PIX_API, WEBHOOK
 
-
-updater = Updater(TOKEN, use_context=True)
-
-dispatcher = updater.dispatcher
-
 # Good bots should send actions.
 def send_action(action):
     """Sends `action` while processing func command."""
@@ -65,10 +61,14 @@ def send_action(action):
 
     return decorator
 
-
-START_MSG = f"""Hello there! my name is <b>{dispatcher.bot.first_name}</b>.
-I'm here to give you some cool high definition wallpapers.
+@run_async
+@send_action(ChatAction.TYPING)
+def start(update, context):
+    START_MSG = f"""Hello there! my name is <b>{
+         context.bot.first_name}</b>.
+I'm here to give you some cool high definition stock Images.
 \nClick: /help to get list of commands!"""
+    update.effective_message.reply_text(START_MSG)
 
 HELP_MSG = """
 Here are the list of available commands i can help you with.\n
@@ -82,12 +82,8 @@ Here are the list of available commands i can help you with.\n
 @run_async
 @send_action(ChatAction.TYPING)
 def helper(update, context):
-    update.effective_message.reply_text(HELP_MSG)
-
-@run_async
-@send_action(ChatAction.TYPING)
-def start(update, context):
-    update.effective_message.reply_text(START_MSG, parse_mode=ParseMode.HTML)
+    update.effective_message.reply_text(HELP_MSG,
+                     parse_mode=None)
 
 # Log Errors caused by Updates
 
@@ -97,6 +93,7 @@ def error(update, context):
 # WALL FUNCTIONS
 
 BASE_URL = 'https://pixabay.com/api/'
+AUTH_URL = 'https://pixabay.com/users'
 
 @run_async
 @send_action(ChatAction.UPLOAD_PHOTO)
@@ -134,7 +131,7 @@ def wall(update, context):
        keyboard = [[
        InlineKeyboardButton(text="PageLink  🌐", url=imgurl),
        InlineKeyboardButton(text="Author 👸",
-            url=f'https://pixabay.com/users/{author}-{authid}')
+            url=f'{AUTH_URL}/{author}-{authid}')
                   ]]
 
 
@@ -150,7 +147,6 @@ def wall(update, context):
        context.bot.send_photo(chat.id, photo=preview,
             caption=(WALL_STR),
             reply_markup=InlineKeyboardMarkup(keyboard),
-            parse_mode=ParseMode.HTML,
             timeout=60)
 
        context.bot.send_document(chat.id,
@@ -210,7 +206,7 @@ def wallcolor(update, context):
        keyboard = [[
        InlineKeyboardButton(text="PageLink  🌐", url=imgurl),
        InlineKeyboardButton(text="Author 👸",
-            url=f'https://pixabay.com/users/{author}-{authid}')
+            url=f'{AUTH_URL}/{author}-{authid}')
                   ]]
 
        WCOLOR_STR = f"""
@@ -225,7 +221,6 @@ def wallcolor(update, context):
        context.bot.send_photo(chat.id, photo=preview,
        caption=(WCOLOR_STR),
        reply_markup=InlineKeyboardMarkup(keyboard),
-       parse_mode=ParseMode.HTML,
        timeout=60)
 
        context.bot.send_document(chat.id,
@@ -261,7 +256,7 @@ def editorschoice(update, context):
     keyboard = [[
        InlineKeyboardButton(text="PageLink  🌐", url=imgurl),
        InlineKeyboardButton(text="Author 👸",
-            url=f'https://pixabay.com/users/{author}-{authid}')
+            url=f'{AUTH_URL}/users/{author}-{authid}')
                   ]]
 
     EDITOR_STR = f"""
@@ -275,7 +270,6 @@ def editorschoice(update, context):
        context.bot.send_photo(chat.id, photo=preview,
        caption=(EDITOR_STR),
        reply_markup=InlineKeyboardMarkup(keyboard),
-       parse_mode=ParseMode.HTML,
        timeout=60)
 
        context.bot.send_document(chat.id,
@@ -312,7 +306,7 @@ def randomwalls(update, context):
     keyboard = [[
        InlineKeyboardButton(text="PageLink  🌐", url=imgurl),
        InlineKeyboardButton(text="Author 👸",
-            url=f'https://pixabay.com/users/{author}-{authid}')
+            url=f'{AUTH_URL}/{author}-{authid}')
                   ]]
 
     RANDOM_STR = f"""
@@ -326,7 +320,6 @@ def randomwalls(update, context):
        context.bot.send_photo(chat.id, photo=preview,
        caption=(RANDOM_STR),
        reply_markup=InlineKeyboardMarkup(keyboard),
-       parse_mode=ParseMode.HTML,
        timeout=60)
 
        context.bot.send_document(chat.id,
@@ -356,8 +349,7 @@ here are the list of color filters you can use:
 × <code>turquoise</code>, <code>brown</code>.
 """
     update.effective_message.reply_text(
-           COLOR_STR,
-           parse_mode=ParseMode.HTML)
+           COLOR_STR)
 
 
 @run_async
@@ -377,8 +369,7 @@ gives you stunning free images & royalty free stock wallpapers from <a href="htt
 I'm written on Python3 using PTB library by this <a href="tg://user?id=894380120">person</a>.
 Contact him if you're having any trouble using me!
 """
-    context.bot.sendMessage(chat.id, ABOUT_STR,
-                parse_mode=ParseMode.HTML)
+    context.bot.sendMessage(chat.id, ABOUT_STR)
 
 @run_async
 @send_action(ChatAction.TYPING)
@@ -401,16 +392,18 @@ def api_status(update, context):
        text += f"Requests limit: <code>{ratelimit}</code>\n"
        text += f"Requests remaining: <code>{remaining}</code>"
 
-       msg.reply_text(text,
-              parse_mode=ParseMode.HTML)
+       msg.reply_text(text)
 
     except Exception:
          msg.reply_text(f"API status: {status}")
 
 
-
 # HANDLERS
 def main():
+    defaults = Defaults(parse_mode=ParseMode.HTML)
+    updater = Updater(TOKEN, use_context=True, defaults=defaults)
+    dispatcher = updater.dispatcher
+
     start_handler = CommandHandler('start', start)
     help_handler = CommandHandler('help', helper)
     wall_handler = CommandHandler(["wall", "wallpaper"], wall)
@@ -420,6 +413,7 @@ def main():
     colors_handler = CommandHandler('colors', colors)
     about_handler = CommandHandler('about', about)
     apistatus_handler = CommandHandler('status', api_status, filters=Filters.user(894380120))
+
 # Register handlers to dispatcher
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(help_handler)

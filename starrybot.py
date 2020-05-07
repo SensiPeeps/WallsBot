@@ -118,7 +118,7 @@ def wall(update, context):
     else:
        pickrandom = random.choice(list(hits)) # Random hits
        hits = pickrandom
-       preview = hits.get('webformatURL')
+       preview = hits.get('largeImageURL')
        views = hits.get('views')
        downloads = hits.get('downloads')
        likes = hits.get('likes')
@@ -126,7 +126,7 @@ def wall(update, context):
        authid = hits.get('user_id')
        tags = hits.get('tags')
        imgurl = hits.get('pageURL')
-       document = hits.get('largeImageURL')
+       document = hits.get('imageURL')
 
        keyboard = [[
        InlineKeyboardButton(text="PageLink  🌐", url=imgurl),
@@ -193,7 +193,7 @@ def wallcolor(update, context):
     else:
        pickrandom = random.choice(list(hits)) # Random hits
        hits = pickrandom
-       preview = hits.get('webformatURL')
+       preview = hits.get('largeImageURL')
        views = hits.get('views')
        downloads = hits.get('downloads')
        likes = hits.get('likes')
@@ -201,7 +201,7 @@ def wallcolor(update, context):
        authid = hits.get('user_id')
        tags = hits.get('tags')
        imgurl = hits.get('pageURL')
-       document = hits.get('largeImageURL')
+       document = hits.get('imageURL')
 
        keyboard = [[
        InlineKeyboardButton(text="PageLink  🌐", url=imgurl),
@@ -243,7 +243,7 @@ def editorschoice(update, context):
     hits = contents.get('hits')
     pickrandom = random.choice(list(hits)) # Random hits
     hits = pickrandom
-    preview = hits.get('webformatURL')
+    preview = hits.get('largeImageURL')
     views = hits.get('views')
     downloads = hits.get('downloads')
     likes = hits.get('likes')
@@ -251,7 +251,7 @@ def editorschoice(update, context):
     authid = hits.get('user_id')
     tags = hits.get('tags')
     imgurl = hits.get('pageURL')
-    document = hits.get('largeImageURL')
+    document = hits.get('imageURL')
 
     keyboard = [[
        InlineKeyboardButton(text="PageLink  🌐", url=imgurl),
@@ -293,7 +293,7 @@ def randomwalls(update, context):
     hits = contents.get('hits')
     pickrandom = random.choice(list(hits)) # Random hits
     hits = pickrandom
-    preview = hits.get('webformatURL')
+    preview = hits.get('largeImageURL')
     views = hits.get('views')
     downloads = hits.get('downloads')
     likes = hits.get('likes')
@@ -301,7 +301,7 @@ def randomwalls(update, context):
     authid = hits.get('user_id')
     tags = hits.get('tags')
     imgurl = hits.get('pageURL')
-    document = hits.get('largeImageURL')
+    document = hits.get('imageURL')
 
     keyboard = [[
        InlineKeyboardButton(text="PageLink  🌐", url=imgurl),
@@ -337,7 +337,7 @@ def colors(update, context):
 Hello {mention_html(
    update.effective_user.id,
         update.effective_user.full_name
-      )
+   )
 }
 here are the list of color filters you can use:
 × <code>grayscale</code>, <code>blue</code>.
@@ -355,13 +355,12 @@ here are the list of color filters you can use:
 @run_async
 @send_action(ChatAction.TYPING)
 def about(update, context):
-    user = update.effective_user
     chat = update.effective_chat
     ABOUT_STR = f"""
 Hello {mention_html(
    update.effective_user.id,
         update.effective_user.full_name
-       )
+   )
 }
 I'm a simple wallpapers bot which
 gives you stunning free images & royalty free stock wallpapers from <a href="https://pixabay.com/">pixabay</a>.

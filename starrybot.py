@@ -14,7 +14,7 @@ import logging
 import os
 import requests
 import random
-import strings as str
+import strings as s
 
 from telegram.ext import(
 Updater, CommandHandler,
@@ -65,13 +65,13 @@ def send_action(action):
 @send_action(ChatAction.TYPING)
 def start(update, context):
     update.effective_message.reply_text(
-    str.START_MSG.format(context.bot.first_name))
+    s.START_MSG.format(context.bot.first_name))
 
 @run_async
 @send_action(ChatAction.TYPING)
 def helper(update, context):
     update.effective_message.reply_text(
-    str.HELP_MSG, parse_mode=None)
+    s.HELP_MSG, parse_mode=None)
 
 # Log Errors caused by Updates
 
@@ -95,7 +95,7 @@ def wall(update, context):
     query = " ".join(args).lower()
 
     if not query:
-       msg.reply_text(str.NO_ARGS)
+       msg.reply_text(s.NO_ARGS)
        return
     query = query.replace(" ", "+")
     contents = requests.get(
@@ -104,7 +104,7 @@ def wall(update, context):
 
     hits = contents.get('hits')
     if not hits:
-       msg.reply_text(str.NOT_FOUND)
+       msg.reply_text(s.NOT_FOUND)
        return
     else:
        pickrandom = random.choice(list(hits)) # Random hits
@@ -127,7 +127,7 @@ def wall(update, context):
 
     try:
        context.bot.send_photo(chat.id, photo=preview,
-            caption=(str.WALL_STR.format(
+            caption=(s.WALL_STR.format(
             likes, author, views, downloads, tags)),
             reply_markup=InlineKeyboardMarkup(keyboard),
             timeout=60)
@@ -157,10 +157,10 @@ def wallcolor(update, context):
     color = " ".join(args).lower()
 
     if not color:
-       msg.reply_text(str.NO_ARGS)
+       msg.reply_text(s.NO_ARGS)
        return
     if color not in VALID_COLORS:
-       msg.reply_text(str.INVALID_COLOR)
+       msg.reply_text(s.INVALID_COLOR)
        return
 
     contents = requests.get(
@@ -169,7 +169,7 @@ def wallcolor(update, context):
 
     hits = contents.get('hits')
     if not hits: # should never happen since these colors are in supported list by API
-       msg.reply_text(str.NOT_FOUND)
+       msg.reply_text(s.NOT_FOUND)
        return
     else:
        pickrandom = random.choice(list(hits)) # Random hits
@@ -192,7 +192,7 @@ def wallcolor(update, context):
 
     try:
        context.bot.send_photo(chat.id, photo=preview,
-       caption=(str.WALL_STR.format(
+       caption=(s.WALL_STR.format(
        likes, author, views, downloads, tags)),
        reply_markup=InlineKeyboardMarkup(keyboard),
        timeout=60)
@@ -235,7 +235,7 @@ def editorschoice(update, context):
 
     try:
        context.bot.send_photo(chat.id, photo=preview,
-       caption=(str.WALL_STR.format(
+       caption=(s.WALL_STR.format(
        likes, author, views, downloads, tags)),
        reply_markup=InlineKeyboardMarkup(keyboard),
        timeout=60)
@@ -279,7 +279,7 @@ def randomwalls(update, context):
 
     try:
        context.bot.send_photo(chat.id, photo=preview,
-       caption=(str.WALL_STR.format(
+       caption=(s.WALL_STR.format(
        likes, author, views, downloads, tags)),
        reply_markup=InlineKeyboardMarkup(keyboard),
        timeout=60)
@@ -295,7 +295,7 @@ def randomwalls(update, context):
 @send_action(ChatAction.TYPING)
 def colors(update, context):
     update.effective_message.reply_text(
-    str.COLOR_STR.format(mention_html(
+    s.COLOR_STR.format(mention_html(
     update.effective_user.id,
     update.effective_user.full_name)))
 
@@ -304,7 +304,7 @@ def colors(update, context):
 @send_action(ChatAction.TYPING)
 def about(update, context):
     update.effective_message.reply_text(
-    str.ABOUT_STR.format(mention_html(
+    s.ABOUT_STR.format(mention_html(
     update.effective_user.id,
     update.effective_user.full_name)))
 

@@ -14,6 +14,7 @@ import logging
 import os
 import requests
 import random
+import strings as str
 
 from telegram.ext import(
 Updater, CommandHandler,
@@ -63,26 +64,14 @@ def send_action(action):
 @run_async
 @send_action(ChatAction.TYPING)
 def start(update, context):
-    START_MSG = f"""Hello there! my name is <b>{
-         context.bot.first_name}</b>.
-I'm here to give you some cool high definition stock Images.
-\nClick: /help to get list of commands!"""
-    update.effective_message.reply_text(START_MSG)
-
-HELP_MSG = """
-Here are the list of available commands i can help you with.\n
-× /wall <query>: Gives you wallpapers related to you query.
-× /wcolor <color>: Filter images by color properties. click: /colors to get list of colors available.
-× /editors: Gives you images that have recived Editor's Choice award.
-× /random: Gives you randomly choosen wallpapers.
-× /about: To get information about bot!"""
-
+    update.effective_message.reply_text(
+    str.START_MSG.format(context.bot.first_name))
 
 @run_async
 @send_action(ChatAction.TYPING)
 def helper(update, context):
-    update.effective_message.reply_text(HELP_MSG,
-                     parse_mode=None)
+    update.effective_message.reply_text(
+    str.HELP_MSG, parse_mode=None)
 
 # Log Errors caused by Updates
 
@@ -106,7 +95,7 @@ def wall(update, context):
     query = " ".join(args).lower()
 
     if not query:
-       msg.reply_text("Please enter some keywords!")
+       msg.reply_text(str.NO_ARGS)
        return
     query = query.replace(" ", "+")
     contents = requests.get(
@@ -115,7 +104,7 @@ def wall(update, context):
 
     hits = contents.get('hits')
     if not hits:
-       msg.reply_text("Couldn't find any matching results for the query!")
+       msg.reply_text(str.NOT_FOUND)
        return
     else:
        pickrandom = random.choice(list(hits)) # Random hits
@@ -136,18 +125,10 @@ def wall(update, context):
             url=f'{AUTH_URL}/{author}-{authid}')
                   ]]
 
-
-       WALL_STR = f"""
-× <b>Likes</b>: {likes}
-× <b>Author</b>: {author}
-× <b>Views</b>: {views}
-× <b>Downloads</b>: {downloads}
-× <b>Tags</b>: {tags}
-"""
-
     try:
        context.bot.send_photo(chat.id, photo=preview,
-            caption=(WALL_STR),
+            caption=(str.WALL_STR.format(
+            likes, author, views, downloads, tags)),
             reply_markup=InlineKeyboardMarkup(keyboard),
             timeout=60)
 
@@ -176,12 +157,10 @@ def wallcolor(update, context):
     color = " ".join(args).lower()
 
     if not color:
-       msg.reply_text("Please enter some keywords to get walls based on color properties.")
+       msg.reply_text(str.NO_ARGS)
        return
     if color not in VALID_COLORS:
-       msg.reply_text(
-           "This seems like invalid color filter, Click /colors to get list of valid colors!"
-               )
+       msg.reply_text(str.INVALID_COLOR)
        return
 
     contents = requests.get(
@@ -190,7 +169,7 @@ def wallcolor(update, context):
 
     hits = contents.get('hits')
     if not hits: # should never happen since these colors are in supported list by API
-       msg.reply_text("Couldn't find any matching results")
+       msg.reply_text(str.NOT_FOUND)
        return
     else:
        pickrandom = random.choice(list(hits)) # Random hits
@@ -211,17 +190,10 @@ def wallcolor(update, context):
             url=f'{AUTH_URL}/{author}-{authid}')
                   ]]
 
-       WCOLOR_STR = f"""
-× <b>Likes</b>: {likes}
-× <b>Author</b>: {author}
-× <b>Views</b>: {views}
-× <b>Downloads</b>: {downloads}
-× <b>Tags</b>: {tags}
-"""
-
     try:
        context.bot.send_photo(chat.id, photo=preview,
-       caption=(WCOLOR_STR),
+       caption=(str.WALL_STR.format(
+       likes, author, views, downloads, tags)),
        reply_markup=InlineKeyboardMarkup(keyboard),
        timeout=60)
 
@@ -261,16 +233,10 @@ def editorschoice(update, context):
             url=f'{AUTH_URL}/users/{author}-{authid}')
                   ]]
 
-    EDITOR_STR = f"""
-× <b>Likes</b>: {likes}
-× <b>Author</b>: {author}
-× <b>Views</b>: {views}
-× <b>Downloads</b>: {downloads}
-× <b>Tags</b>: {tags}
-"""
     try:
        context.bot.send_photo(chat.id, photo=preview,
-       caption=(EDITOR_STR),
+       caption=(str.WALL_STR.format(
+       likes, author, views, downloads, tags)),
        reply_markup=InlineKeyboardMarkup(keyboard),
        timeout=60)
 
@@ -311,16 +277,10 @@ def randomwalls(update, context):
             url=f'{AUTH_URL}/{author}-{authid}')
                   ]]
 
-    RANDOM_STR = f"""
-× <b>Likes</b>: {likes}
-× <b>Author</b>: {author}
-× <b>Views</b>: {views}
-× <b>Downloads</b>: {downloads}
-× <b>Tags</b>: {tags}
-"""
     try:
        context.bot.send_photo(chat.id, photo=preview,
-       caption=(RANDOM_STR),
+       caption=(str.WALL_STR.format(
+       likes, author, views, downloads, tags)),
        reply_markup=InlineKeyboardMarkup(keyboard),
        timeout=60)
 
@@ -334,44 +294,19 @@ def randomwalls(update, context):
 @run_async
 @send_action(ChatAction.TYPING)
 def colors(update, context):
-
-    COLOR_STR = f"""
-Hello {mention_html(
-   update.effective_user.id,
-        update.effective_user.full_name
-   )
-}
-here are the list of color filters you can use:
-× <code>grayscale</code>, <code>blue</code>.
-× <code>transparent</code>, <code>lilac</code>.
-× <code>red</code>, <code>pink</code>.
-× <code>orange</code>, <code>white</code>.
-× <code>yellow</code>, <code>grey</code>.
-× <code>green</code>, <code>black</code>.
-× <code>turquoise</code>, <code>brown</code>.
-"""
     update.effective_message.reply_text(
-           COLOR_STR)
+    str.COLOR_STR.format(mention_html(
+    update.effective_user.id,
+    update.effective_user.full_name)))
 
 
 @run_async
 @send_action(ChatAction.TYPING)
 def about(update, context):
-    chat = update.effective_chat
-    ABOUT_STR = f"""
-Hello {mention_html(
-   update.effective_user.id,
-        update.effective_user.full_name
-   )
-}
-I'm a simple wallpapers bot which
-gives you stunning free images & royalty free stock wallpapers from <a href="https://pixabay.com/">pixabay</a> API.
-
-I'm written on Python3 using PTB library by this <a href="tg://user?id=894380120">person</a>.
-You can checkout my source code <a href="https://github.com/starry69/WallsBot">here</a> and drop a star if you enjoyed using me!
-
-Feel free to contact my creator if you're having any trouble or found some rough edge inside me :)"""
-    context.bot.sendMessage(chat.id, ABOUT_STR)
+    update.effective_message.reply_text(
+    str.ABOUT_STR.format(mention_html(
+    update.effective_user.id,
+    update.effective_user.full_name)))
 
 @run_async
 @send_action(ChatAction.TYPING)

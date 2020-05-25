@@ -86,6 +86,17 @@ def error(update, context):
 BASE_URL = 'https://pixabay.com/api/'
 AUTH_URL = 'https://pixabay.com/users'
 
+# Don't async
+def keyboard(imgurl, author, authid):
+    """ sends inline keyboard buttons
+        with reply photo """
+    keyb = [[
+       InlineKeyboardButton(text="PageLink  🌐", url=imgurl),
+       InlineKeyboardButton(text="Author 👸",
+            url=f'{AUTH_URL}/{author}-{authid}')]]
+    return keyb
+
+
 @run_async
 @send_action(ChatAction.UPLOAD_PHOTO)
 def wall(update, context):
@@ -119,17 +130,12 @@ def wall(update, context):
        imgurl = hits.get('pageURL')
        document = hits.get('imageURL')
 
-       keyboard = [[
-       InlineKeyboardButton(text="PageLink  🌐", url=imgurl),
-       InlineKeyboardButton(text="Author 👸",
-            url=f'{AUTH_URL}/{author}-{authid}')
-                  ]]
-
     try:
        context.bot.send_photo(chat.id, photo=preview,
             caption=(s.WALL_STR.format(
             likes, author, views, downloads, tags)),
-            reply_markup=InlineKeyboardMarkup(keyboard),
+            reply_markup=InlineKeyboardMarkup(
+            keyboard(imgurl, author, authid)),
             timeout=60)
 
        context.bot.send_document(chat.id,
@@ -184,17 +190,12 @@ def wallcolor(update, context):
        imgurl = hits.get('pageURL')
        document = hits.get('imageURL')
 
-       keyboard = [[
-       InlineKeyboardButton(text="PageLink  🌐", url=imgurl),
-       InlineKeyboardButton(text="Author 👸",
-            url=f'{AUTH_URL}/{author}-{authid}')
-                  ]]
-
     try:
        context.bot.send_photo(chat.id, photo=preview,
        caption=(s.WALL_STR.format(
        likes, author, views, downloads, tags)),
-       reply_markup=InlineKeyboardMarkup(keyboard),
+       reply_markup=InlineKeyboardMarkup(
+       keyboard(imgurl, author, authid)),
        timeout=60)
 
        context.bot.send_document(chat.id,
@@ -227,17 +228,12 @@ def editorschoice(update, context):
     imgurl = hits.get('pageURL')
     document = hits.get('imageURL')
 
-    keyboard = [[
-       InlineKeyboardButton(text="PageLink  🌐", url=imgurl),
-       InlineKeyboardButton(text="Author 👸",
-            url=f'{AUTH_URL}/users/{author}-{authid}')
-                  ]]
-
     try:
        context.bot.send_photo(chat.id, photo=preview,
        caption=(s.WALL_STR.format(
        likes, author, views, downloads, tags)),
-       reply_markup=InlineKeyboardMarkup(keyboard),
+       reply_markup=InlineKeyboardMarkup(
+       keyboard(imgurl, author, authid)),
        timeout=60)
 
        context.bot.send_document(chat.id,
@@ -271,17 +267,12 @@ def randomwalls(update, context):
     imgurl = hits.get('pageURL')
     document = hits.get('imageURL')
 
-    keyboard = [[
-       InlineKeyboardButton(text="PageLink  🌐", url=imgurl),
-       InlineKeyboardButton(text="Author 👸",
-            url=f'{AUTH_URL}/{author}-{authid}')
-                  ]]
-
     try:
        context.bot.send_photo(chat.id, photo=preview,
        caption=(s.WALL_STR.format(
        likes, author, views, downloads, tags)),
-       reply_markup=InlineKeyboardMarkup(keyboard),
+       reply_markup=InlineKeyboardMarkup(
+       keyboard(imgurl, author, authid)),
        timeout=60)
 
        context.bot.send_document(chat.id,

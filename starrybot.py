@@ -88,14 +88,28 @@ AUTH_URL = 'https://pixabay.com/users'
 
 # Don't async
 def keyboard(imgurl, author, authid):
-    """ sends inline keyboard buttons
-        with reply photo """
     keyb = [[
        InlineKeyboardButton(text="PageLink  🌐", url=imgurl),
        InlineKeyboardButton(text="Author 👸",
             url=f'{AUTH_URL}/{author}-{authid}')]]
     return keyb
 
+# Don't async
+def build_res(hits):
+    pickrandom = random.choice(list(hits))
+    hits = pickrandom
+
+    class res(object):
+          preview = hits.get('largeImageURL')
+          views = hits.get('views')
+          downloads = hits.get('downloads')
+          likes = hits.get('likes')
+          author = hits.get('user')
+          authid = hits.get('user_id')
+          tags = hits.get('tags')
+          imgurl = hits.get('pageURL')
+          document = hits.get('imageURL')
+    return res
 
 @run_async
 @send_action(ChatAction.UPLOAD_PHOTO)
@@ -118,28 +132,17 @@ def wall(update, context):
        msg.reply_text(s.NOT_FOUND)
        return
     else:
-       pickrandom = random.choice(list(hits)) # Random hits
-       hits = pickrandom
-       preview = hits.get('largeImageURL')
-       views = hits.get('views')
-       downloads = hits.get('downloads')
-       likes = hits.get('likes')
-       author = hits.get('user')
-       authid = hits.get('user_id')
-       tags = hits.get('tags')
-       imgurl = hits.get('pageURL')
-       document = hits.get('imageURL')
-
+       res = build_res(hits=hits)
     try:
-       context.bot.send_photo(chat.id, photo=preview,
+       context.bot.send_photo(chat.id, photo=res.preview,
             caption=(s.WALL_STR.format(
-            likes, author, views, downloads, tags)),
+            res.likes, res.author, res.views, res.downloads, res.tags)),
             reply_markup=InlineKeyboardMarkup(
-            keyboard(imgurl, author, authid)),
+            keyboard(res.imgurl, res.author, res.authid)),
             timeout=60)
 
        context.bot.send_document(chat.id,
-               document=document,
+               document=res.document,
                timeout=100)
     except BadRequest as excp:
             msg.reply_text(f"Error! {excp.message}")
@@ -178,28 +181,17 @@ def wallcolor(update, context):
        msg.reply_text(s.NOT_FOUND)
        return
     else:
-       pickrandom = random.choice(list(hits)) # Random hits
-       hits = pickrandom
-       preview = hits.get('largeImageURL')
-       views = hits.get('views')
-       downloads = hits.get('downloads')
-       likes = hits.get('likes')
-       author = hits.get('user')
-       authid = hits.get('user_id')
-       tags = hits.get('tags')
-       imgurl = hits.get('pageURL')
-       document = hits.get('imageURL')
-
+       res = build_res(hits=hits)
     try:
-       context.bot.send_photo(chat.id, photo=preview,
+       context.bot.send_photo(chat.id, photo=res.preview,
        caption=(s.WALL_STR.format(
-       likes, author, views, downloads, tags)),
+       res.likes, res.author, res.views, res.downloads, res.tags)),
        reply_markup=InlineKeyboardMarkup(
-       keyboard(imgurl, author, authid)),
+       keyboard(res.imgurl, res.author, res.authid)),
        timeout=60)
 
        context.bot.send_document(chat.id,
-                document=document,
+                document=res.document,
                 timeout=100)
     except BadRequest as excp:
        msg.reply_text(f"Error! {excp.message}")
@@ -216,28 +208,17 @@ def editorschoice(update, context):
                ).json()
 
     hits = contents.get('hits')
-    pickrandom = random.choice(list(hits)) # Random hits
-    hits = pickrandom
-    preview = hits.get('largeImageURL')
-    views = hits.get('views')
-    downloads = hits.get('downloads')
-    likes = hits.get('likes')
-    author = hits.get('user')
-    authid = hits.get('user_id')
-    tags = hits.get('tags')
-    imgurl = hits.get('pageURL')
-    document = hits.get('imageURL')
-
+    res = build_res(hits=hits)
     try:
-       context.bot.send_photo(chat.id, photo=preview,
+       context.bot.send_photo(chat.id, photo=res.preview,
        caption=(s.WALL_STR.format(
-       likes, author, views, downloads, tags)),
+       res.likes, res.author, res.views, res.downloads, res.tags)),
        reply_markup=InlineKeyboardMarkup(
-       keyboard(imgurl, author, authid)),
+       keyboard(res.imgurl, res.author, res.authid)),
        timeout=60)
 
        context.bot.send_document(chat.id,
-               document=document,
+               document=res.document,
                timeout=100)
     except BadRequest as excp:
        msg.reply_text(f"Error! {excp.message}")
@@ -255,28 +236,17 @@ def randomwalls(update, context):
                ).json()
 
     hits = contents.get('hits')
-    pickrandom = random.choice(list(hits)) # Random hits
-    hits = pickrandom
-    preview = hits.get('largeImageURL')
-    views = hits.get('views')
-    downloads = hits.get('downloads')
-    likes = hits.get('likes')
-    author = hits.get('user')
-    authid = hits.get('user_id')
-    tags = hits.get('tags')
-    imgurl = hits.get('pageURL')
-    document = hits.get('imageURL')
-
+    res = build_res(hits=hits)
     try:
-       context.bot.send_photo(chat.id, photo=preview,
+       context.bot.send_photo(chat.id, photo=res.preview,
        caption=(s.WALL_STR.format(
-       likes, author, views, downloads, tags)),
+       res.likes, res.author, res.views, res.downloads, res.tags)),
        reply_markup=InlineKeyboardMarkup(
-       keyboard(imgurl, author, authid)),
+       keyboard(res.imgurl, res.author, res.authid)),
        timeout=60)
 
        context.bot.send_document(chat.id,
-               document=document,
+               document=res.document,
                timeout=100)
     except BadRequest as excp:
        msg.reply_text(f"Error! {excp.message}")

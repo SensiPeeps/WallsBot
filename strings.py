@@ -45,8 +45,10 @@ here are the list of color filters you can use:
 ABOUT_STR = """Hello {}
 I'm a simple wallpapers bot which
 gives you stunning free images & royalty free stock wallpapers from <a href="https://pixabay.com/">pixabay</a> API.
+
 I'm written on Python3 using PTB library by this <a href="tg://user?id=894380120">person</a>.
 You can checkout my source code <a href="https://github.com/starry69/WallsBot">here</a> and drop a star if you enjoyed using me!
+
 Feel free to contact my creator if you're having any trouble or found some rough edge inside me :)"""
 
 INVALID_COLOR = """

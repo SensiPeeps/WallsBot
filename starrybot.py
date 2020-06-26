@@ -130,8 +130,8 @@ def build_res(hits):
 
 # Don't async
 def send(update, context, res):
-
     chat = update.effective_chat
+    msg = update.effective_message
     try:
        context.bot.send_photo(chat.id, photo=res.preview,
        caption=(s.WALL_STR.format(
@@ -193,9 +193,6 @@ def wallcolor(update, context):
 @run_async
 @send_action(upload)
 def editorschoice(update, context):
-    msg = update.effective_message
-    chat = update.effective_chat
-
     contents = requests.get(
                f"{BASE_URL}?key={PIX_API}&editors_choice=true&page=2&per_page=200"
                ).json()
@@ -206,9 +203,6 @@ def editorschoice(update, context):
 @run_async
 @send_action(upload)
 def randomwalls(update, context):
-    msg = update.effective_message
-    chat = update.effective_chat
-
     contents = requests.get(
                f"{BASE_URL}?key={PIX_API}&page=2&per_page=200"
                ).json()

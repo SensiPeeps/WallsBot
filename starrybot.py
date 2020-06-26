@@ -10,10 +10,9 @@
 # Copyright (C) 2007 Free Software Foundation, Inc.
 # you may not use this file except in compliance with the License.
 
-import logging
-import os
-import requests
-import random
+import logging, os, random, nekos, \
+requests, json, html, traceback
+
 import strings as s
 
 from telegram.ext import(
@@ -48,6 +47,49 @@ if ENV:
 else:
       from config import TOKEN, PIX_API, WEBHOOK
 
+# Log Errors caused by Updates
+
+def error(update, context):
+    """Log the error and send a telegram message to notify the developer."""
+    # Log the error before we do anything else, so we can see it even if something breaks.
+    LOGGER.error(msg="Exception while handling an update:", exc_info=context.error)
+
+    # traceback.format_exception returns the usual python message about an exception, but as a
+    # list of strings rather than a single string, so we have to join them together.
+    tb_list = traceback.format_exception(None, context.error, context.error.__traceback__)
+    tb = ''.join(tb_list)
+
+    # Build the message with some markup and additional information about what happened.
+    # You might need to add some logic to deal with messages longer than the 4096 character limit.
+    message = (
+        'An exception was raised while handling an update\n'
+        '<pre>update = {}</pre>\n\n'
+        '<pre>{}</pre>'
+    ).format(
+        html.escape(json.dumps(update.to_dict(), indent=2, ensure_ascii=False)),
+        html.escape(tb)
+    )
+
+    # Finally, send the message
+    context.bot.send_message(chat_id=894380120, text=message, parse_mode=ParseMode.HTML)
+
+
+# Helper funcs ==============================================================================
+
+BASE_URL = 'https://pixabay.com/api/'
+AUTH_URL = 'https://pixabay.com/users'
+
+VALID_COLORS = (
+"grayscale", "transparent",
+"red", "orange", "yellow","green",
+"turquoise", "blue", "lilac",
+"pink", "white", "gray", "black", "brown"
+)
+
+typing = ChatAction.TYPING
+upload = ChatAction.UPLOAD_PHOTO
+
+
 # Good bots should send actions.
 def send_action(action):
     """Sends `action` while processing func command."""
@@ -60,31 +102,6 @@ def send_action(action):
         return command_func
 
     return decorator
-
-@run_async
-@send_action(ChatAction.TYPING)
-def start(update, context):
-    update.effective_message.reply_text(
-    s.START_MSG.format(context.bot.first_name))
-
-@run_async
-@send_action(ChatAction.TYPING)
-def helper(update, context):
-    update.effective_message.reply_text(
-    s.HELP_MSG, parse_mode=None)
-
-# Log Errors caused by Updates
-
-def error(update, context):
-    try:
-        raise context.error
-    finally:
-        LOGGER.warning('Update "%s" caused error "%s"', update, context.error)
-
-# WALL FUNCTIONS
-
-BASE_URL = 'https://pixabay.com/api/'
-AUTH_URL = 'https://pixabay.com/users'
 
 # Don't async
 def keyboard(imgurl, author, authid):
@@ -111,77 +128,10 @@ def build_res(hits):
           document = hits.get('imageURL')
     return res
 
-@run_async
-@send_action(ChatAction.UPLOAD_PHOTO)
-def wall(update, context):
-    msg = update.effective_message
+# Don't async
+def send(update, context, res):
+
     chat = update.effective_chat
-    args = context.args
-    query = " ".join(args).lower()
-
-    if not query:
-       msg.reply_text(s.NO_ARGS)
-       return
-    query = query.replace(" ", "+")
-    contents = requests.get(
-               f"{BASE_URL}?key={PIX_API}&q={query}&page=1&per_page=200"
-               ).json()
-
-    hits = contents.get('hits')
-    if not hits:
-       msg.reply_text(s.NOT_FOUND)
-       return
-    else:
-       res = build_res(hits=hits)
-    try:
-       context.bot.send_photo(chat.id, photo=res.preview,
-            caption=(s.WALL_STR.format(
-            res.likes, res.author, res.views, res.downloads, res.tags)),
-            reply_markup=InlineKeyboardMarkup(
-            keyboard(res.imgurl, res.author, res.authid)),
-            timeout=60)
-
-       context.bot.send_document(chat.id,
-               document=res.document,
-               timeout=100)
-    except BadRequest as excp:
-            msg.reply_text(f"Error! {excp.message}")
-
-
-
-VALID_COLORS = (
-"grayscale", "transparent",
-"red", "orange", "yellow","green",
-"turquoise", "blue", "lilac",
-"pink", "white", "gray", "black", "brown"
-)
-
-
-@run_async
-@send_action(ChatAction.UPLOAD_PHOTO)
-def wallcolor(update, context):
-    msg = update.effective_message
-    chat = update.effective_chat
-    args = context.args
-    color = " ".join(args).lower()
-
-    if not color:
-       msg.reply_text(s.NO_ARGS)
-       return
-    if color not in VALID_COLORS:
-       msg.reply_text(s.INVALID_COLOR)
-       return
-
-    contents = requests.get(
-               f"{BASE_URL}?key={PIX_API}&colors={color}&page=2&per_page=200"
-               ).json()
-
-    hits = contents.get('hits')
-    if not hits: # should never happen since these colors are in supported list by API
-       msg.reply_text(s.NOT_FOUND)
-       return
-    else:
-       res = build_res(hits=hits)
     try:
        context.bot.send_photo(chat.id, photo=res.preview,
        caption=(s.WALL_STR.format(
@@ -196,9 +146,52 @@ def wallcolor(update, context):
     except BadRequest as excp:
        msg.reply_text(f"Error! {excp.message}")
 
+# Wall funcs ===============================================================================
 
 @run_async
-@send_action(ChatAction.UPLOAD_PHOTO)
+@send_action(upload)
+def wall(update, context):
+    msg = update.effective_message
+    query = " ".join(context.args).lower()
+
+    if not query:
+       return msg.reply_text(s.NO_ARGS)
+
+    query = query.replace(" ", "+")
+    contents = requests.get(
+               f"{BASE_URL}?key={PIX_API}&q={query}&page=1&per_page=200"
+               ).json()
+
+    hits = contents.get('hits')
+    if not hits:
+       msg.reply_text(s.NOT_FOUND)
+       return
+    else:
+       send(update, context, build_res(hits))
+
+
+@run_async
+@send_action(upload)
+def wallcolor(update, context):
+    msg = update.effective_message
+    args = context.args
+    color = " ".join(args).lower()
+
+    if not color:
+       return msg.reply_text(s.NO_ARGS)
+
+    if color not in VALID_COLORS:
+       return msg.reply_text(s.INVALID_COLOR)
+
+    contents = requests.get(
+               f"{BASE_URL}?key={PIX_API}&colors={color}&page=2&per_page=200"
+               ).json()
+
+    hits = contents.get('hits')
+    send(update, context, build_res(hits))
+
+@run_async
+@send_action(upload)
 def editorschoice(update, context):
     msg = update.effective_message
     chat = update.effective_chat
@@ -208,25 +201,10 @@ def editorschoice(update, context):
                ).json()
 
     hits = contents.get('hits')
-    res = build_res(hits=hits)
-    try:
-       context.bot.send_photo(chat.id, photo=res.preview,
-       caption=(s.WALL_STR.format(
-       res.likes, res.author, res.views, res.downloads, res.tags)),
-       reply_markup=InlineKeyboardMarkup(
-       keyboard(res.imgurl, res.author, res.authid)),
-       timeout=60)
-
-       context.bot.send_document(chat.id,
-               document=res.document,
-               timeout=100)
-    except BadRequest as excp:
-       msg.reply_text(f"Error! {excp.message}")
-
-
+    send(update, context, build_res(hits))
 
 @run_async
-@send_action(ChatAction.UPLOAD_PHOTO)
+@send_action(upload)
 def randomwalls(update, context):
     msg = update.effective_message
     chat = update.effective_chat
@@ -236,24 +214,30 @@ def randomwalls(update, context):
                ).json()
 
     hits = contents.get('hits')
-    res = build_res(hits=hits)
-    try:
-       context.bot.send_photo(chat.id, photo=res.preview,
-       caption=(s.WALL_STR.format(
-       res.likes, res.author, res.views, res.downloads, res.tags)),
-       reply_markup=InlineKeyboardMarkup(
-       keyboard(res.imgurl, res.author, res.authid)),
-       timeout=60)
+    send(update, context, build_res(hits))
 
-       context.bot.send_document(chat.id,
-               document=res.document,
-               timeout=100)
-    except BadRequest as excp:
-       msg.reply_text(f"Error! {excp.message}")
+@run_async
+@send_action(upload)
+def animewall(update, context):
+    update.effective_message.reply_document(
+    nekos.img('wallpaper'))
 
 
 @run_async
-@send_action(ChatAction.TYPING)
+@send_action(typing)
+def start(update, context):
+    update.effective_message.reply_text(
+    s.START_MSG.format(context.bot.first_name))
+
+@run_async
+@send_action(typing)
+def helper(update, context):
+    update.effective_message.reply_text(
+    s.HELP_MSG, parse_mode=None)
+
+
+@run_async
+@send_action(typing)
 def colors(update, context):
     update.effective_message.reply_text(
     s.COLOR_STR.format(mention_html(
@@ -262,7 +246,7 @@ def colors(update, context):
 
 
 @run_async
-@send_action(ChatAction.TYPING)
+@send_action(typing)
 def about(update, context):
     update.effective_message.reply_text(
     s.ABOUT_STR.format(mention_html(
@@ -270,7 +254,7 @@ def about(update, context):
     update.effective_user.full_name)))
 
 @run_async
-@send_action(ChatAction.TYPING)
+@send_action(typing)
 def api_status(update, context):
     msg = update.effective_message
     r = requests.get(
@@ -310,6 +294,7 @@ def main():
     editors_handler = CommandHandler('editors', editorschoice)
     colors_handler = CommandHandler('colors', colors)
     about_handler = CommandHandler('about', about)
+    anime_handler = CommandHandler('anime', animewall)
     apistatus_handler = CommandHandler('status', api_status, filters=Filters.user(894380120))
 
 # Register handlers to dispatcher
@@ -321,6 +306,7 @@ def main():
     dispatcher.add_handler(random_handler)
     dispatcher.add_handler(colors_handler)
     dispatcher.add_handler(about_handler)
+    dispatcher.add_handler(anime_handler)
     dispatcher.add_handler(apistatus_handler)
     dispatcher.add_error_handler(error)
 

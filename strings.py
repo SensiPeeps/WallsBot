@@ -16,12 +16,13 @@ START_MSG = """Hello there! my name is <b>{}</b>.
 I'm here to give you some cool high definition stock Images.
 Click: /help to get list of commands!"""
 
-HELP_MSG = """Here are the list of available commands i can help you with.\n
+HELP_MSG = """Here is the list of available commands i can help you with.\n
 × /wall <query>: Gives you wallpapers related to you query.
 × /wcolor <color>: Filter images by color properties. click: /colors to get list of colors available.
 × /editors: Gives you images that have recived Editor's Choice award.
 × /random: Gives you randomly choosen wallpapers.
-× /about: To get information about bot!"""
+× /anime: Gives you random anime wallpapers.
+× /about: To get information about me!"""
 
 WALL_STR = """
 × <b>Likes</b>: {}
@@ -57,5 +58,5 @@ Click /colors to get list of valid colors!"""
 
 NO_ARGS = "Please enter some keywords!"
 
-NOT_FOUND = "Couldn't find any matching results for the query!"
+NOT_FOUND = "Sorry, couldn't find any matching results for the query!"
 

@@ -10,18 +10,19 @@
 # Copyright (C) 2007 Free Software Foundation, Inc.
 # you may not use this file except in compliance with the License.
 
+
+
 import logging, os, random, nekos, \
 requests, json, html, traceback
 
 import strings as s
 
 from telegram.ext import(
-Updater, CommandHandler,
-run_async, Filters, Defaults)
+Updater, CommandHandler, run_async,
+Filters, Defaults)
 
 from telegram import(
-ChatAction, ParseMode,
-InlineKeyboardButton,
+ChatAction, ParseMode, InlineKeyboardButton,
 InlineKeyboardMarkup)
 
 from telegram.error import BadRequest
@@ -71,13 +72,12 @@ def error(update, context):
     )
 
     # Finally, send the message
-    context.bot.send_message(chat_id=894380120, text=message, parse_mode=ParseMode.HTML)
+    context.bot.send_message(chat_id=894380120, text=message)
 
 
 # Helper funcs ==============================================================================
 
 BASE_URL = 'https://pixabay.com/api/'
-AUTH_URL = 'https://pixabay.com/users'
 
 VALID_COLORS = (
 "grayscale", "transparent",
@@ -108,7 +108,7 @@ def keyboard(imgurl, author, authid):
     keyb = [[
        InlineKeyboardButton(text="PageLink  🌐", url=imgurl),
        InlineKeyboardButton(text="Author 👸",
-            url=f'{AUTH_URL}/{author}-{authid}')]]
+            url=f'https://pixabay.com/users/{author}-{authid}')]]
     return keyb
 
 # Don't async
@@ -152,12 +152,11 @@ def send(update, context, res):
 @send_action(upload)
 def wall(update, context):
     msg = update.effective_message
-    query = " ".join(context.args).lower()
+    query = "+".join(context.args).lower()
 
     if not query:
        return msg.reply_text(s.NO_ARGS)
 
-    query = query.replace(" ", "+")
     contents = requests.get(
                f"{BASE_URL}?key={PIX_API}&q={query}&page=1&per_page=200"
                ).json()
@@ -174,8 +173,7 @@ def wall(update, context):
 @send_action(upload)
 def wallcolor(update, context):
     msg = update.effective_message
-    args = context.args
-    color = " ".join(args).lower()
+    color = context.args[0]
 
     if not color:
        return msg.reply_text(s.NO_ARGS)

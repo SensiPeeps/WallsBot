@@ -173,7 +173,7 @@ def wall(update, context):
 @send_action(upload)
 def wallcolor(update, context):
     msg = update.effective_message
-    color = context.args[0]
+    color = context.args[0].lower()
 
     if not color:
        return msg.reply_text(s.NO_ARGS)

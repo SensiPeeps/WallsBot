@@ -12,8 +12,9 @@
 
 
 
+
 import logging, os, random, nekos, \
-requests, json, html, traceback
+requests, json, html, traceback, sys
 
 import strings as s
 
@@ -28,6 +29,7 @@ InlineKeyboardMarkup)
 from telegram.error import BadRequest
 from telegram.utils.helpers import mention_html
 
+from threading import Thread
 from functools import wraps
 
 # enable logging
@@ -188,6 +190,7 @@ def wallcolor(update, context):
     hits = contents.get('hits')
     send(update, context, build_res(hits))
 
+
 @run_async
 @send_action(upload)
 def editorschoice(update, context):
@@ -198,6 +201,7 @@ def editorschoice(update, context):
     hits = contents.get('hits')
     send(update, context, build_res(hits))
 
+
 @run_async
 @send_action(upload)
 def randomwalls(update, context):
@@ -207,6 +211,7 @@ def randomwalls(update, context):
 
     hits = contents.get('hits')
     send(update, context, build_res(hits))
+
 
 @run_async
 @send_action(upload)
@@ -220,6 +225,7 @@ def animewall(update, context):
 def start(update, context):
     update.effective_message.reply_text(
     s.START_MSG.format(context.bot.first_name))
+
 
 @run_async
 @send_action(typing)
@@ -244,6 +250,7 @@ def about(update, context):
     s.ABOUT_STR.format(mention_html(
     update.effective_user.id,
     update.effective_user.full_name)))
+
 
 @run_async
 @send_action(typing)
@@ -278,6 +285,15 @@ def main():
     updater = Updater(TOKEN, use_context=True, defaults=defaults)
     dispatcher = updater.dispatcher
 
+    def stop_and_restart():
+        updater.stop()
+        os.execl(sys.executable, sys.executable, *sys.argv)
+
+    def restart(update, context):
+        update.message.reply_text('Restarted!')
+        Thread(target=stop_and_restart).start()
+
+
     start_handler = CommandHandler('start', start)
     help_handler = CommandHandler('help', helper)
     wall_handler = CommandHandler(["wall", "wallpaper"], wall)
@@ -287,7 +303,9 @@ def main():
     colors_handler = CommandHandler('colors', colors)
     about_handler = CommandHandler('about', about)
     anime_handler = CommandHandler('anime', animewall)
+    restart_handler = CommandHandler('reboot', restart, filters=Filters.user(894380120))
     apistatus_handler = CommandHandler('status', api_status, filters=Filters.user(894380120))
+
 
 # Register handlers to dispatcher
     dispatcher.add_handler(start_handler)
@@ -299,6 +317,7 @@ def main():
     dispatcher.add_handler(colors_handler)
     dispatcher.add_handler(about_handler)
     dispatcher.add_handler(anime_handler)
+    dispatcher.add_handler(restart_handler)
     dispatcher.add_handler(apistatus_handler)
     dispatcher.add_error_handler(error)
 

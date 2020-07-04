@@ -11,7 +11,7 @@
 # you may not use this file except in compliance with the License.
 
 
-import logging, os, random, nekos, requests, json, html, traceback, sys, subprocess
+import logging, os, random, nekos, requests, json, html, traceback, sys
 
 import strings as s
 

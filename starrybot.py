@@ -11,20 +11,13 @@
 # you may not use this file except in compliance with the License.
 
 
-
-
-import logging, os, random, nekos, \
-requests, json, html, traceback, sys
+import logging, os, random, nekos, requests, json, html, traceback, sys, subprocess
 
 import strings as s
 
-from telegram.ext import(
-Updater, CommandHandler, run_async,
-Filters, Defaults)
+from telegram.ext import Updater, CommandHandler, run_async, Filters, Defaults
 
-from telegram import(
-ChatAction, ParseMode, InlineKeyboardButton,
-InlineKeyboardMarkup)
+from telegram import ChatAction, ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
 
 from telegram.error import BadRequest
 from telegram.utils.helpers import mention_html
@@ -32,25 +25,27 @@ from telegram.utils.helpers import mention_html
 from threading import Thread
 from functools import wraps
 
+
 # enable logging
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO)
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+)
 
 LOGGER = logging.getLogger(__name__)
 
-ENV = bool(os.environ.get('ENV', False))
+ENV = bool(os.environ.get("ENV", False))
 
 if ENV:
-       TOKEN = os.environ.get('TOKEN')
-       URL = os.environ.get('URL')
-       PORT = int(os.environ.get('PORT'))
-       WEBHOOK = bool(os.environ.get('WEBHOOK', False))
-       PIX_API = os.environ.get('PIX_API', None)
+    TOKEN = os.environ.get("TOKEN")
+    URL = os.environ.get("URL")
+    PORT = int(os.environ.get("PORT"))
+    WEBHOOK = bool(os.environ.get("WEBHOOK", False))
+    PIX_API = os.environ.get("PIX_API", None)
 else:
-      from config import TOKEN, PIX_API, WEBHOOK
+    from config import TOKEN, PIX_API, WEBHOOK
 
 # Log Errors caused by Updates
+
 
 def error(update, context):
     """Log the error and send a telegram message to notify the developer."""
@@ -59,18 +54,20 @@ def error(update, context):
 
     # traceback.format_exception returns the usual python message about an exception, but as a
     # list of strings rather than a single string, so we have to join them together.
-    tb_list = traceback.format_exception(None, context.error, context.error.__traceback__)
-    tb = ''.join(tb_list)
+    tb_list = traceback.format_exception(
+        None, context.error, context.error.__traceback__
+    )
+    tb = "".join(tb_list)
 
     # Build the message with some markup and additional information about what happened.
     # You might need to add some logic to deal with messages longer than the 4096 character limit.
     message = (
-        'An exception was raised while handling an update\n'
-        '<pre>update = {}</pre>\n\n'
-        '<pre>{}</pre>'
+        "An exception was raised while handling an update\n"
+        "<pre>update = {}</pre>\n\n"
+        "<pre>{}</pre>"
     ).format(
         html.escape(json.dumps(update.to_dict(), indent=2, ensure_ascii=False)),
-        html.escape(tb)
+        html.escape(tb),
     )
 
     # Finally, send the message
@@ -79,13 +76,23 @@ def error(update, context):
 
 # Helper funcs ==============================================================================
 
-BASE_URL = 'https://pixabay.com/api/'
+BASE_URL = "https://pixabay.com/api/"
 
 VALID_COLORS = (
-"grayscale", "transparent",
-"red", "orange", "yellow","green",
-"turquoise", "blue", "lilac",
-"pink", "white", "gray", "black", "brown"
+    "grayscale",
+    "transparent",
+    "red",
+    "orange",
+    "yellow",
+    "green",
+    "turquoise",
+    "blue",
+    "lilac",
+    "pink",
+    "white",
+    "gray",
+    "black",
+    "brown",
 )
 
 typing = ChatAction.TYPING
@@ -99,19 +106,28 @@ def send_action(action):
     def decorator(func):
         @wraps(func)
         def command_func(update, context, *args, **kwargs):
-            context.bot.send_chat_action(chat_id=update.effective_chat.id, action=action)
-            return func(update, context,  *args, **kwargs)
+            context.bot.send_chat_action(
+                chat_id=update.effective_chat.id, action=action
+            )
+            return func(update, context, *args, **kwargs)
+
         return command_func
 
     return decorator
 
+
 # Don't async
 def keyboard(imgurl, author, authid):
-    keyb = [[
-       InlineKeyboardButton(text="PageLink  🌐", url=imgurl),
-       InlineKeyboardButton(text="Author 👸",
-            url=f'https://pixabay.com/users/{author}-{authid}')]]
+    keyb = [
+        [
+            InlineKeyboardButton(text="PageLink  🌐", url=imgurl),
+            InlineKeyboardButton(
+                text="Author 👸", url=f"https://pixabay.com/users/{author}-{authid}"
+            ),
+        ]
+    ]
     return keyb
+
 
 # Don't async
 def build_res(hits):
@@ -119,36 +135,45 @@ def build_res(hits):
     hits = pickrandom
 
     class res(object):
-          preview = hits.get('largeImageURL')
-          views = hits.get('views')
-          downloads = hits.get('downloads')
-          likes = hits.get('likes')
-          author = hits.get('user')
-          authid = hits.get('user_id')
-          tags = hits.get('tags')
-          imgurl = hits.get('pageURL')
-          document = hits.get('imageURL')
+        preview = hits.get("largeImageURL")
+        views = hits.get("views")
+        downloads = hits.get("downloads")
+        likes = hits.get("likes")
+        author = hits.get("user")
+        authid = hits.get("user_id")
+        tags = hits.get("tags")
+        imgurl = hits.get("pageURL")
+        document = hits.get("imageURL")
+
     return res
+
 
 # Don't async
 def send(update, context, res):
     chat = update.effective_chat
     msg = update.effective_message
     try:
-       context.bot.send_photo(chat.id, photo=res.preview,
-       caption=(s.WALL_STR.format(
-       res.likes, res.author, res.views, res.downloads, res.tags)),
-       reply_markup=InlineKeyboardMarkup(
-       keyboard(res.imgurl, res.author, res.authid)),
-       timeout=60)
+        context.bot.send_photo(
+            chat.id,
+            photo=res.preview,
+            caption=(
+                s.WALL_STR.format(
+                    res.likes, res.author, res.views, res.downloads, res.tags
+                )
+            ),
+            reply_markup=InlineKeyboardMarkup(
+                keyboard(res.imgurl, res.author, res.authid)
+            ),
+            timeout=60,
+        )
 
-       context.bot.send_document(chat.id,
-                document=res.document,
-                timeout=100)
+        context.bot.send_document(chat.id, document=res.document, timeout=100)
     except BadRequest as excp:
-       msg.reply_text(f"Error! {excp.message}")
+        msg.reply_text(f"Error! {excp.message}")
+
 
 # Wall funcs ===============================================================================
+
 
 @run_async
 @send_action(upload)
@@ -157,37 +182,37 @@ def wall(update, context):
     query = "+".join(context.args).lower()
 
     if not query:
-       return msg.reply_text(s.NO_ARGS)
+        return msg.reply_text(s.NO_ARGS)
 
     contents = requests.get(
-               f"{BASE_URL}?key={PIX_API}&q={query}&page=1&per_page=200"
-               ).json()
+        f"{BASE_URL}?key={PIX_API}&q={query}&page=1&per_page=200"
+    ).json()
 
-    hits = contents.get('hits')
+    hits = contents.get("hits")
     if not hits:
-       msg.reply_text(s.NOT_FOUND)
-       return
+        msg.reply_text(s.NOT_FOUND)
+        return
     else:
-       send(update, context, build_res(hits))
+        send(update, context, build_res(hits))
 
 
 @run_async
 @send_action(upload)
 def wallcolor(update, context):
     msg = update.effective_message
-    color = context.args[0].lower()
-
-    if not color:
-       return msg.reply_text(s.NO_ARGS)
+    try:
+        color = context.args[0].lower()
+    except IndexError:
+        return msg.reply_text(s.NO_ARGS)
 
     if color not in VALID_COLORS:
-       return msg.reply_text(s.INVALID_COLOR)
+        return msg.reply_text(s.INVALID_COLOR)
 
     contents = requests.get(
-               f"{BASE_URL}?key={PIX_API}&colors={color}&page=2&per_page=200"
-               ).json()
+        f"{BASE_URL}?key={PIX_API}&colors={color}&page=2&per_page=200"
+    ).json()
 
-    hits = contents.get('hits')
+    hits = contents.get("hits")
     send(update, context, build_res(hits))
 
 
@@ -195,88 +220,83 @@ def wallcolor(update, context):
 @send_action(upload)
 def editorschoice(update, context):
     contents = requests.get(
-               f"{BASE_URL}?key={PIX_API}&editors_choice=true&page=2&per_page=200"
-               ).json()
+        f"{BASE_URL}?key={PIX_API}&editors_choice=true&page=2&per_page=200"
+    ).json()
 
-    hits = contents.get('hits')
+    hits = contents.get("hits")
     send(update, context, build_res(hits))
 
 
 @run_async
 @send_action(upload)
 def randomwalls(update, context):
-    contents = requests.get(
-               f"{BASE_URL}?key={PIX_API}&page=2&per_page=200"
-               ).json()
+    contents = requests.get(f"{BASE_URL}?key={PIX_API}&page=2&per_page=200").json()
 
-    hits = contents.get('hits')
+    hits = contents.get("hits")
     send(update, context, build_res(hits))
 
 
 @run_async
 @send_action(upload)
 def animewall(update, context):
-    update.effective_message.reply_document(
-    nekos.img('wallpaper'))
+    update.effective_message.reply_document(nekos.img("wallpaper"))
 
 
 @run_async
 @send_action(typing)
 def start(update, context):
-    update.effective_message.reply_text(
-    s.START_MSG.format(context.bot.first_name))
+    update.effective_message.reply_text(s.START_MSG.format(context.bot.first_name))
 
 
 @run_async
 @send_action(typing)
 def helper(update, context):
-    update.effective_message.reply_text(
-    s.HELP_MSG, parse_mode=None)
+    update.effective_message.reply_text(s.HELP_MSG, parse_mode=None)
 
 
 @run_async
 @send_action(typing)
 def colors(update, context):
     update.effective_message.reply_text(
-    s.COLOR_STR.format(mention_html(
-    update.effective_user.id,
-    update.effective_user.full_name)))
+        s.COLOR_STR.format(
+            mention_html(update.effective_user.id, update.effective_user.full_name)
+        )
+    )
 
 
 @run_async
 @send_action(typing)
 def about(update, context):
     update.effective_message.reply_text(
-    s.ABOUT_STR.format(mention_html(
-    update.effective_user.id,
-    update.effective_user.full_name)))
+        s.ABOUT_STR.format(
+            mention_html(update.effective_user.id, update.effective_user.full_name)
+        )
+    )
 
 
-@run_async
 @send_action(typing)
 def api_status(update, context):
     msg = update.effective_message
-    r = requests.get(
-        f"{BASE_URL}?key={PIX_API}")
+    r = requests.get(f"{BASE_URL}?key={PIX_API}")
     if r.status_code == 200:
-       status = 'functional'
+        status = "functional"
     elif r.status_code == 429:
-       status = 'limit exceeded!'
+        status = "limit exceeded!"
     else:
-       status = f'Error! {r.status_code}'
+        status = f"Error! {r.status_code}"
 
     try:
-       ratelimit = r.headers['X-RateLimit-Limit']
-       remaining = r.headers['X-RateLimit-Remaining']
+        ratelimit = r.headers["X-RateLimit-Limit"]
+        remaining = r.headers["X-RateLimit-Remaining"]
 
-       text = f"API status: <code>{status}</code>\n"
-       text += f"Requests limit: <code>{ratelimit}</code>\n"
-       text += f"Requests remaining: <code>{remaining}</code>"
+        text = f"API status: <code>{status}</code>\n"
+        text += f"Requests limit: <code>{ratelimit}</code>\n"
+        text += f"Requests remaining: <code>{remaining}</code>"
 
-       msg.reply_text(text)
+        msg.reply_text(text)
 
     except Exception:
-         msg.reply_text(f"API status: {status}")
+        raise
 
 
 # HANDLERS
@@ -290,24 +310,24 @@ def main():
         os.execl(sys.executable, sys.executable, *sys.argv)
 
     def restart(update, context):
-        update.message.reply_text('Restarted!')
+        update.message.reply_text("Restarted!")
         Thread(target=stop_and_restart).start()
 
-
-    start_handler = CommandHandler('start', start)
-    help_handler = CommandHandler('help', helper)
+    start_handler = CommandHandler("start", start)
+    help_handler = CommandHandler("help", helper)
     wall_handler = CommandHandler(["wall", "wallpaper"], wall)
-    wcolor_handler = CommandHandler('wcolor', wallcolor)
-    random_handler = CommandHandler('random', randomwalls)
-    editors_handler = CommandHandler('editors', editorschoice)
-    colors_handler = CommandHandler('colors', colors)
-    about_handler = CommandHandler('about', about)
-    anime_handler = CommandHandler('anime', animewall)
-    restart_handler = CommandHandler('reboot', restart, filters=Filters.user(894380120))
-    apistatus_handler = CommandHandler('status', api_status, filters=Filters.user(894380120))
+    wcolor_handler = CommandHandler("wcolor", wallcolor)
+    random_handler = CommandHandler("random", randomwalls)
+    editors_handler = CommandHandler("editors", editorschoice)
+    colors_handler = CommandHandler("colors", colors)
+    about_handler = CommandHandler("about", about)
+    anime_handler = CommandHandler("anime", animewall)
+    restart_handler = CommandHandler("reboot", restart, filters=Filters.user(894380120))
+    apistatus_handler = CommandHandler(
+        "status", api_status, filters=Filters.user(894380120)
+    )
 
-
-# Register handlers to dispatcher
+    # Register handlers to dispatcher
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(help_handler)
     dispatcher.add_handler(wall_handler)
@@ -321,14 +341,12 @@ def main():
     dispatcher.add_handler(apistatus_handler)
     dispatcher.add_error_handler(error)
 
-# BOT ENGINE
+    # BOT ENGINE
     if WEBHOOK:
-          LOGGER.info("Starting WallsBot // Using webhooks...")
-          updater.start_webhook(listen="0.0.0.0",
-                      port=PORT,
-                      url_path=TOKEN)
+        LOGGER.info("Starting WallsBot // Using webhooks...")
+        updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
 
-          updater.bot.set_webhook(url=URL + TOKEN)
+        updater.bot.set_webhook(url=URL + TOKEN)
 
     else:
         LOGGER.info("Starting WallsBot // Using long polling...")
@@ -336,5 +354,6 @@ def main():
 
     updater.idle()
 
-if __name__ == '__main__':
-   main()
+
+if __name__ == "__main__":
+    main()

@@ -1,6 +1,6 @@
-# Copyright (C) - 2020 Starry69 // @starryboi
-#
-# This file is part of WallsBot
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Copyright (c) 2020 Stɑrry Shivɑm
 #
 # WallsBot is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -9,7 +9,6 @@
 # Licensed under GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 # Copyright (C) 2007 Free Software Foundation, Inc.
 # you may not use this file except in compliance with the License.
-
 
 
 START_MSG = """Hello there! my name is <b>{}</b>.
@@ -59,4 +58,3 @@ Click /colors to get list of valid colors!"""
 NO_ARGS = "Please enter some keywords!"
 
 NOT_FOUND = "Sorry, couldn't find any matching results for the query!"
-

@@ -1,1 +1,1 @@
-web: python3 -m starrybot
+web: python3 -m wallsbot
